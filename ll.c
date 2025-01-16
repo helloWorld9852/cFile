@@ -1,333 +1,314 @@
-#include <stdio.h> 
-#include<stdlib.h> 
-//Structure for a single Node 
-struct node  
-{ 
-    int item; 
-    struct node * next; //Pointer to next Node 
-    struct node * prev; //Pointer to Previous Node 
-}; 
-//struct node * type defined as NODE 
-typedef struct node * NODE; 
-//Function to create a Node 
-NODE getnode(int val) 
-{ 
-    NODE temp; //Pointer to newly created node 
-    temp = (NODE)malloc(sizeof(struct node)); 
-    temp->item=val; 
-    temp->next=temp; 
-    temp->prev=temp; 
-    return temp; 
-} 
-//Function to insert Node at front 
-NODE insertfront(NODE head,int val) 
-{ 
-    NODE temp; //Pointer to newly created node 
-    temp = getnode(val); 
-    NODE first = head->next; 
-    if(head->next==NULL) 
-    { 
-        head->next = head->prev = temp; 
-        temp->prev = temp->next = head; 
-        return head; 
-    } 
-    else 
-    { 
-        temp -> next = first; 
-        first->prev = temp; 
-        temp -> prev = head; 
-        head->next=temp; 
-        return head; 
-    } 
-} 
-//Function to insert Node at Rear End 
-NODE insertrear(NODE head, int val) 
-{ 
-    NODE temp,last; 
-    temp = getnode(val); //Pointer to newly created node 
-    last = head->prev; //Pointer to Current Node 
-    if(head->next==NULL) 
-    { 
-        head->next = head->prev = temp; 
-        temp->prev = temp->next = head; 
-        return head; 
-    } 
-    else 
-    { 
-        last->next=temp; 
-        temp->next=head; 
-        head->prev=temp; 
-        temp->prev=last; 
-        return head; 
-    } 
-} 
-//Function to delete Node at front 
-NODE deletefront(NODE head) 
-{ 
-    NODE first=head->next; 
-    if(head->next==NULL) 
-    { 
-        printf("List is empty\n"); 
-        return head; 
-    } 
-    else 
-    { 
-        head->next=first->next; 
-        free(first); 
-        return head; 
-    } 
-} 
-//Function to delete Node at Rear End 
-NODE deleterear(NODE head) 
-{ 
-    NODE last = head->prev; //Pointer to Current Node 
-    NODE temp=NULL; //Pointer to Previous Node 
-    if(head->next==NULL) 
-    { 
-        printf("List is empty\n"); 
-        return head; 
-    } 
-    else 
-    { 
-        head->prev=last->prev; 
-        free(last); 
- 
-        return head; 
-    } 
-} 
-//Function to insert Node at Specified Position 
-NODE insertpos(NODE head, int val, int pos) 
-{ 
-    NODE temp = getnode(val); 
-    NODE cur = head->next; //Pointer to Current Node 
-    NODE previous = NULL; //Pointer to Previous Node 
-    if(pos==1&&head==NULL) 
-    { 
-        head = insertfront(head,val); 
-        return head; 
-    } 
-     else if(pos!=1&&head==NULL) 
-    { 
-        printf("Invalid Position\n"); 
-        return head; 
-    } 
-    else 
-    { 
-        while(pos!=1&&cur!=head) 
-        { 
-            previous=cur; 
-            cur = cur->next; 
-            pos--; 
-        } 
-        temp->next = cur; 
-        temp->prev = previous; 
-        previous->next = temp; 
-        cur->prev=temp; 
-        return head; 
-    }  
-} 
-//Function to delete a Node at Specified Position 
-NODE deletepos(NODE head,int pos) 
-{ 
-    NODE after = head->next; //Pointer to Next Node 
-    NODE cur = NULL; //Pointer to Current Node 
-    NODE previous = NULL; // Pointer to Previous Node 
-    if(head->next==NULL) 
-    { 
-        printf("List is empty\n"); 
-        return head; 
-    } 
-    while(pos != 0) 
-    { 
-        previous=cur; 
-        cur = after; 
-        after = after->next;  
- 
-        pos--; 
-    } 
-    previous->next = after; 
-    after->prev=previous; 
-    free(cur); //Deleting the Current Node by Deallocating Memory 
-    cur = NULL; 
-    return head; 
-} 
-//Function to search a Key element in a list 
-int search(NODE head, int key) 
-{ 
-    int i=1,flag=0,pos=0; 
-    NODE cur; 
-    cur = head->next; 
-    while(cur->next!=head) 
-    { 
-        if(cur->item==key) 
-        { 
-            flag = 1; 
-            pos = i; 
-            break; 
-        } 
-        cur = cur->next; 
-        i++; 
-    } 
-    if(flag==1) 
-    return pos; 
-    else 
-    return 0; 
-} 
-//Function to delete a Key element in a list 
-NODE deletebykey(NODE head,int key) 
-{ 
-    int pos = search(head,key); //Position of the found Key 
-    if(pos!=0) 
-    { 
-        head = deletepos(head,pos); 
-        return head; 
-    } 
-    else 
-    { 
-        printf("Element not found\n"); 
-        return head; 
-    } 
-} 
-//Function to display all elements in a list 
-NODE display(NODE head) 
-{ 
-    NODE cur=head->next; 
-    if(head->next==NULL) 
- 
-    { 
-        printf("List is Empty\n"); 
-        return head; 
-    } 
-    else 
-    { 
-        while (cur!=head) 
-        { 
-            printf("%d ",cur->item); 
-            cur = cur->next; 
-        } 
-        return head; 
-    } 
-} 
-//Function to reverse a linked list 
-NODE reverse(NODE head) 
-{ 
-    NODE temp,cur; 
-    cur = head->next; 
-    temp=NULL; 
-    do 
-    { 
-        temp = cur->prev; 
-        cur->prev = cur->next; 
-        cur->next = temp; 
-        cur = cur->prev; 
-    }while(cur!= head); 
-    if(temp!=NULL) 
-    head = temp->prev; 
-    display(head); 
-    return head; 
-} 
-//Function to create Ordered List 
-NODE orderlist(NODE head, int val) 
-{ 
-    NODE temp = getnode(val); 
-    NODE previous = NULL; 
-    NODE cur = head->next; 
-    while(cur->next!=head) 
-    { 
-        if(cur->item>temp->item) 
-        { 
-            break; 
-        } 
-        previous=cur; 
-        cur = cur->next; 
-    } 
-    temp->next = cur; 
-    temp->prev = previous; 
-    previous->next = temp; 
- 
-    cur->prev=temp; 
-    return head; 
-} 
-//Function to create a Copy List 
-NODE createcopy(NODE head, NODE copy) 
-{ 
-    NODE cur=head->next; 
-    while(cur!=head) 
-    { 
-        copy=insertrear(copy,cur->item); 
-        cur=cur->next; 
-    } 
-    return copy; 
-} 
-//Main Function 
-void main() 
-{ 
-    NODE head = getnode(0); //Pointer to header node of list 
-    NODE copy = getnode(0); //Poiner to header node of copied list  
-    int choice; 
-    int key,val,pos; 
-    printf("\nMain Menu\n1.Insert Front\n2.Insert Rear\n3.Delete Front\n4.Delete Rear\n5.Insert By Pos\n6.Delete by Pos\n7.Search\n8.Delete By Key\n9.Display\n10.Reverse\n11.Ordered List\n12.Create Copy\n13.Exit\n"); 
-    for(;;) 
-    { 
-        printf("\nEnter your Choice :"); 
-        scanf("%d",&choice); 
-        switch(choice) 
-        { 
-            case 1 : printf("Enter the value : "); 
-                     scanf("%d",&val); 
-                     head = insertfront(head,val); 
-                     break; 
-            case 2 : printf("Enter the value : "); 
-                     scanf("%d",&val); 
-                     head = insertrear(head,val); 
-                     break; 
-            case 3 : head = deletefront(head); 
-                     printf("Deletion Successfull\n"); 
-                     break; 
-            case 4 : head = deleterear(head); 
-                     printf("Deletion Successfull\n"); 
-                     break; 
-            case 5 : printf("Enter the value : "); 
-                     scanf("%d",&val); 
-                     printf("Enter the position : "); 
-                     scanf("%d",&pos); 
-                     head = insertpos(head,val,pos); 
-                     printf("Insertion Succesfull\n"); 
- 
-                     break; 
-            case 6 : printf("Enter the position : "); 
-                     scanf("%d",&pos); 
-                     head = deletepos(head,pos); 
-                     printf("Deletion Succesfull\n"); 
-                     break; 
-            case 7 : printf("Enter the Key : "); 
-                     scanf("%d",&key); 
-                     pos = search(head,key); 
-                     if(pos!=0) 
-                     printf("The Key found at %d pos\n",pos); 
-                     else 
-                     printf("Element not found\n"); 
-                     break; 
-            case 8 : printf("Enter the Key : "); 
-                     scanf("%d",&key); 
-                     head = deletebykey(head,key); 
-                     printf("Deletion Successfull\n"); 
-                     break; 
-            case 9 : display(head); 
-                     break; 
-            case 10 : head = reverse(head); 
-                      break; 
-            case 11 : printf("Enter the value : "); 
-                     scanf("%d",&val); 
-                      head = orderlist(head,val); 
-                      break; 
-            case 12 : printf("Copied List : "); 
-                      copy = createcopy(head,copy); 
-                      display(copy); 
-                      break; 
-            case 13 : printf("!!THANK YOU!!\n"); 
-                     exit(0); 
-            default : printf("Invalid Choice\n Enter again\n"); 
-        } 
-    } 
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node {
+    int data;
+    struct node *next;
+    struct node *prev;
+} *Node;
+
+Node createNode() {
+    Node newNode = (Node)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed!");
+        exit(1);
+    }
+    printf("Enter value: ");
+    scanf("%d", &newNode->data);
+    newNode->next = newNode->prev = NULL;
+    return newNode;
+}
+
+Node createHeader() {
+    Node header = (Node)malloc(sizeof(struct node));
+    if (header == NULL) {
+        printf("Memory allocation failed!");
+        exit(1);
+    }
+    header->data = 0; // Counter for the number of nodes
+    header->next = header->prev = header;
+    return header;
+}
+
+void insertFront(Node header) {
+    Node newNode = createNode();
+    if (header->data == 0) {
+        header->next = header->prev = newNode;
+        newNode->next = newNode->prev = header;
+    } else {
+        newNode->next = header->next;
+        newNode->prev = header;
+        header->next->prev = newNode;
+        header->next = newNode;
+    }
+    header->data++;
+}
+
+void insertRear(Node header) {
+    Node newNode = createNode();
+    if (header->data == 0) {
+        header->next = header->prev = newNode;
+        newNode->next = newNode->prev = header;
+    } else {
+        newNode->prev = header->prev;
+        newNode->next = header;
+        header->prev->next = newNode;
+        header->prev = newNode;
+    }
+    header->data++;
+}
+
+void insertAtPosition(Node header, int pos) {
+    Node temp = header->next;
+    int count = 1;
+    while (temp != header && count < pos) {
+        temp = temp->next;
+        count++;
+    }
+    if (temp == header && count < pos) {
+        printf("Invalid position!");
+        return;
+    }
+    Node newNode = createNode();
+    newNode->next = temp;
+    newNode->prev = temp->prev;
+    temp->prev->next = newNode;
+    temp->prev = newNode;
+    header->data++;
+}
+
+void deleteFront(Node header) {
+    if (header->data == 0) {
+        printf("List is empty!");
+        return;
+    }
+    Node temp = header->next;
+    header->next = temp->next;
+    temp->next->prev = header;
+    free(temp);
+    header->data--;
+}
+
+void deleteRear(Node header) {
+    if (header->data == 0) {
+        printf("List is empty!");
+        return;
+    }
+    Node temp = header->prev;
+    header->prev = temp->prev;
+    temp->prev->next = header;
+    free(temp);
+    header->data--;
+}
+
+void deleteAtPosition(Node header, int pos) {
+    Node temp = header->next;
+    int count = 1;
+    while (temp != header && count < pos) {
+        temp = temp->next;
+        count++;
+    }
+    if (temp == header) {
+        printf("Invalid position!");
+        return;
+    }
+    temp->prev->next = temp->next;
+    temp->next->prev = temp->prev;
+    free(temp);
+    header->data--;
+}
+
+void searchByKey(Node header, int key) {
+    if (header->data == 0) {
+        printf("List is empty!");
+        return;
+    }
+    Node temp = header->next;
+    while (temp != header) {
+        if (temp->data == key) {
+            printf("The node with key %d is found", temp->data);
+            return;
+        }
+        temp = temp->next;
+    }
+    printf("Key not found!");
+}
+
+void deleteByKey(Node header, int key) {
+    if (header->data == 0) {
+        printf("List is empty!");
+        return;
+    }
+
+    Node temp = header->next;
+    while (temp != header) {
+        if (temp->data == key) {
+            temp->prev->next = temp->next;
+            temp->next->prev = temp->prev;
+            free(temp);
+            header->data--;
+            printf("Key %d deleted successfully!\n", key);
+            return;
+        }
+        temp = temp->next;
+    }
+    printf("Key %d not found!\n", key);
+}
+
+void insertByOrder(Node header) {
+    Node newNode = createNode();
+    
+    if (header->data == 0) { // List is empty
+        newNode->next = header;
+        newNode->prev = header;
+        header->next = newNode;
+        header->prev = newNode;
+    } else {
+        Node current = header->next; // Start from the first actual node
+        
+        // Traverse to find the correct position
+        while (current != header && current->data < newNode->data) {
+            current = current->next;
+        }
+        
+        // Insert newNode before 'current'
+        newNode->next = current;
+        newNode->prev = current->prev;
+        current->prev->next = newNode;
+        current->prev = newNode;
+    }
+    header->data++;
+}
+
+void reverseList(Node header) {
+    if (header->data == 0) {
+        printf("List is empty!");
+        return;
+    }
+    Node current = header;
+    do {
+        Node next = current->next;
+        current->next = current->prev;
+        current->prev = next;
+        current = next;
+    } while (current != header);
+    printf("List reversed successfully!\n");
+}
+
+Node copyList(Node header) {
+    Node newHeader = createHeader();
+    Node temp, newNode, last;
+    temp = header->next;
+    last = newHeader;
+        
+    while (temp != header) {
+        newNode = (Node)malloc(sizeof(struct node));
+        newNode->data = temp->data;
+        newNode->next = last->next;
+        newNode->prev = last;
+        last->next = newNode;
+        last = newNode;
+        temp = temp->next;
+        newHeader->data++;
+    }
+    last->next = newHeader;
+    newHeader->prev = last;
+    return newHeader;
+}
+
+
+void displayList(Node header) {
+    if (header->data == 0) {
+        printf("List is empty!");
+        return;
+    }
+
+    Node temp = header->next;
+    printf("\nList (Count=%d): ", header->data);
+    while (temp != header) {
+        printf("%d <-> ", temp->data);
+        temp = temp->next;
+    }
+    printf("header");
+}
+
+int main() {
+    Node header = createHeader();
+    int choice, position, key;
+
+    while (1) {
+        printf("\n\nDoubly Circular Linked List Operations:");
+        printf("\n1. Insert at Front");
+        printf("\n2. Insert at Rear");
+        printf("\n3. Insert at Position");
+        printf("\n4. Delete from Front");
+        printf("\n5. Delete from Rear");
+        printf("\n6. Delete from Position");
+        printf("\n7. Delete by Key");
+        printf("\n8. Search by Key");
+        printf("\n9. Insert by order");
+         printf("\n10. Reverse List");
+        printf("\n11. Copy List");
+        printf("\n12. Display List");
+        printf("\n13. Exit");
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                insertFront(header);
+                break;
+            case 2:
+                insertRear(header);
+                break;
+            case 3:
+                printf("Enter position: ");
+                scanf("%d", &position);
+                insertAtPosition(header, position);
+                break;
+            case 4:
+                deleteFront(header);
+                break;
+            case 5:
+                deleteRear(header);
+                break;
+            case 6:
+                printf("Enter position: ");
+                scanf("%d", &position);
+                deleteAtPosition(header, position);
+                break;
+            case 7:
+                printf("Enter key to delete: ");
+                scanf("%d", &key);
+                deleteByKey(header, key);
+                break;
+            case 8:
+                printf("Enter key to search: ");
+                scanf("%d", &key);
+                searchByKey(header, key);
+                break;
+            case 9:
+                insertByOrder(header);
+                break;
+            case 10:
+                reverseList(header);
+                break;
+            case 11: {
+                Node newHeader = copyList(header);
+                printf("Copied List: ");
+                displayList(newHeader);
+                free(newHeader);
+                break;
+            }
+            case 12:
+                displayList(header);
+                break;
+            case 13:
+                free(header);
+                exit(0);
+            default:
+                printf("Invalid choice!");
+        }
+    }
+    return 0;
 }
